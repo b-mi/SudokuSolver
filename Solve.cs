@@ -26,7 +26,7 @@ namespace SudokuSolver
             solve();
             sw.Stop();
             Console.WriteLine("");
-            Console.WriteLine($"Elpased: {sw.ElapsedMilliseconds}");
+            Console.WriteLine($"Elpased: {sw.ElapsedMilliseconds}ms");
             Console.ReadKey();
 
         }
