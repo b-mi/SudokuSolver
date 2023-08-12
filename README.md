@@ -3,6 +3,7 @@ Sudoku solver for fan
 c# console app
 
 Source (in board.txt):
+```
 9 . . | . . 8 | . . .
 8 1 . | 9 4 3 | . . .
 . 3 . | . . . | . . .
@@ -14,10 +15,10 @@ Source (in board.txt):
 . . . | . . 7 | 5 . 8
 . . . | . . 5 | . 6 .
 . . . | . 3 . | . . 9
-
+```
 
 Result (in console window):
-
+```
 9   6   2 | 1   7   8 | 3   4   5
 8   1   5 | 9   4   3 | 7   2   6
 4   3   7 | 6   5   2 | 8   9   1
@@ -30,6 +31,7 @@ Result (in console window):
 7   4   3 | 8   9   5 | 1   6   2
 6   5   8 | 2   3   1 | 4   7   9
 ---------------------------------
+```
 
 Elpased: 9ms
 
