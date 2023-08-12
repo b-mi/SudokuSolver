@@ -1,5 +1,5 @@
 # SudokuSolver
-Sudoku solver for fan
+Sudoku solver for fun
 c# console app
 
 Source (in board.txt):
