@@ -10,7 +10,7 @@ namespace SudokuSolver
     {
         static void Main(string[] args)
         {
-            new Solve(@"H:\Data\repos\cs\SudokuSolver\board.txt");
+            new Solve(@"..\..\board.txt");
         }
     }
 }
