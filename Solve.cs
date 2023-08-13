@@ -65,7 +65,6 @@ namespace SudokuSolver
 
                 // value is coorrect, enter it into array
                 var isEnd = setCellValue(curCell, curCell.TestValue);
-                //draw(curCell.Hash);
                 if (isEnd)
                 {
                     draw();
@@ -84,7 +83,6 @@ namespace SudokuSolver
                 }
 
                 curCellIdx++; // move next
-                //Debug.WriteLine($"{curCellIdx}");
                 curCell = lstNonFixed[curCellIdx];
 
             }
@@ -275,6 +273,7 @@ namespace SudokuSolver
             lstCells.Add(cell);
         }
 
+#if USEDEBUG
         internal bool isInvalidGroup(bool allowZero)
         {
             hs.Clear();
@@ -299,6 +298,7 @@ namespace SudokuSolver
             }
             return false;
         }
+#endif
 
         internal bool IsValidValue(int newValue)
         {
