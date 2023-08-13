@@ -1,9 +1,12 @@
-﻿using System;
+﻿#define xUSEDEBUG
+#define xFINDALL
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
+using System.Windows.Markup;
 
 namespace SudokuSolver
 {
@@ -13,9 +16,8 @@ namespace SudokuSolver
         private List<CellGroup> rowGroups;
         private List<CellGroup> matrixGroups;
         private List<CellGroup> colGroups;
-        int numbersCount = 0, curCellIdx = 0, maxValue = 0;
+        int numbersCount = 0, curCellIdx = 0, maxValue = 0, backStepCount = 0, stepCount = 0;
         const int matrixDimension = 3;
-
         List<Cell> lstNonFixed = new List<Cell>();
 
         public Solve(string boardFile)
@@ -26,7 +28,8 @@ namespace SudokuSolver
             solve();
             sw.Stop();
             Console.WriteLine("");
-            Console.WriteLine($"Elpased: {sw.ElapsedMilliseconds}ms");
+            Console.WriteLine($"Elpased: {sw.ElapsedMilliseconds}ms, steps: {stepCount}, back steps: {backStepCount}");
+            Console.WriteLine("Done");
             Console.ReadKey();
 
         }
@@ -34,20 +37,29 @@ namespace SudokuSolver
         private void solve()
         {
 
-
             var curCell = lstNonFixed[curCellIdx];
             while (true)
             {
                 curCell.TestValue++;
+                stepCount++;
+#if USEDEBUG
+                if (stepCount == 55)
+                {
+                    debugCheck(true);
+                }
+#endif
                 if (curCell.TestValue > maxValue)
                 {
                     curCell = stepBack(curCell);
+                    if (curCell == null)
+                        break;
+                    backStepCount++;
                     continue;
                 }
 
                 if (curCell.Groups.Any(g => !g.IsValidValue(curCell.TestValue)))
                 {
-                    // som of group does not allow thics value
+                    // some of group does not allow this value
                     continue; // go to next value
                 }
 
@@ -57,7 +69,18 @@ namespace SudokuSolver
                 if (isEnd)
                 {
                     draw();
+#if USEDEBG
+                    debugCheck(false);
+#endif
+
+#if FINDALL
+                    // test another solution
+                    continue;
+#else
                     break;
+#endif
+
+
                 }
 
                 curCellIdx++; // move next
@@ -85,6 +108,8 @@ namespace SudokuSolver
                     Console.WriteLine("---------------------------------");
                 }
             }
+            Console.WriteLine("---------------------------------");
+
 
         }
 
@@ -92,23 +117,72 @@ namespace SudokuSolver
         {
             setCellValue(cell, 0);
             curCellIdx--;
+            if (curCellIdx == -1)
+                return null;
             return lstNonFixed[curCellIdx];
         }
 
         private bool setCellValue(Cell cell, int val)
         {
+
+            if (cell.Value == 0 && val > 0)
+                numbersCount++;
+            else if (cell.Value > 0 && val == 0)
+                numbersCount--;
             cell.Value = val;
             if (val == 0)
-            {
-                numbersCount--;
                 cell.TestValue = 0;
-            }
-            else
-                numbersCount++;
+
+#if USEDEBUG
+            debugCheck(true);
+#endif
 
             return numbersCount == maxValue * maxValue;
 
         }
+
+#if USEDEBUG
+        private void debugCheck(bool allowZero)
+        {
+            var cnt = 0;
+            for (int r = 0; r < maxValue; r++)
+            {
+                for (int c = 0; c < maxValue; c++)
+                {
+                    var cell = board[r, c];
+                    if (cell.Value > 0)
+                    {
+                        cnt++;
+                    }
+                    if (cell.Value == 0 && cell.IsFixed)
+                    {
+                        throw new InvalidOperationException();
+                    }
+                }
+            }
+            if (cnt != numbersCount)
+            {
+                draw();
+                // error
+            }
+
+            var grps = new List<CellGroup>();
+            grps.AddRange(rowGroups);
+            grps.AddRange(colGroups);
+            grps.AddRange(matrixGroups);
+
+
+            foreach (var g in grps)
+            {
+                if (g.isInvalidGroup(allowZero))
+                {
+                }
+            }
+
+        }
+
+#endif
+
 
         private void loadBoardFile(string boardFile)
         {
@@ -195,9 +269,35 @@ namespace SudokuSolver
     internal class CellGroup
     {
         List<Cell> lstCells = new List<Cell>();
+        HashSet<int> hs = new HashSet<int>();
         internal void AddCell(Cell cell)
         {
             lstCells.Add(cell);
+        }
+
+        internal bool isInvalidGroup(bool allowZero)
+        {
+            hs.Clear();
+            foreach (var cell in lstCells)
+            {
+                if (!allowZero && cell.Value == 0)
+                {
+                    return true;
+                }
+
+                if (cell.Value > 0 && hs.Contains(cell.Value))
+                {
+                    // error, violation
+                    return true;
+
+                }
+                else
+                {
+                    hs.Add(cell.Value);
+                }
+
+            }
+            return false;
         }
 
         internal bool IsValidValue(int newValue)
