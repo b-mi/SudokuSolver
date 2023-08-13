@@ -16,7 +16,7 @@ namespace SudokuSolver
         private List<CellGroup> rowGroups;
         private List<CellGroup> matrixGroups;
         private List<CellGroup> colGroups;
-        int numbersCount = 0, curCellIdx = 0, maxValue = 0, backStepCount = 0, stepCount = 0;
+        int numbersCount = 0, curCellIdx = 0, maxValue = 0;
         const int matrixDimension = 3;
         List<Cell> lstNonFixed = new List<Cell>();
 
@@ -28,7 +28,7 @@ namespace SudokuSolver
             solve();
             sw.Stop();
             Console.WriteLine("");
-            Console.WriteLine($"Elpased: {sw.ElapsedMilliseconds}ms, steps: {stepCount}, back steps: {backStepCount}");
+            Console.WriteLine($"Elpased: {sw.ElapsedMilliseconds}ms");
             Console.WriteLine("Done");
             Console.ReadKey();
 
@@ -41,19 +41,11 @@ namespace SudokuSolver
             while (true)
             {
                 curCell.TestValue++;
-                stepCount++;
-#if USEDEBUG
-                if (stepCount == 55)
-                {
-                    debugCheck(true);
-                }
-#endif
                 if (curCell.TestValue > maxValue)
                 {
                     curCell = stepBack(curCell);
                     if (curCell == null)
                         break;
-                    backStepCount++;
                     continue;
                 }
 
